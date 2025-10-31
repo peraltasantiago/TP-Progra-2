@@ -1,7 +1,5 @@
 package entidades;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +14,7 @@ public class Proyecto {
 	private boolean finalizado;
 	private boolean tieneRetraso;
 	private List<Tarea> tareas;
-	private List<Integer> historialEmpleados;
+	private List<String> historialEmpleados;
 	
 	public Proyecto(String[] titulos, String[] descripcion, double[] dias, String domicilio, String[] cliente, String inicio, String fin) {
 		this.nroProyecto = ++contadorProyecto;
@@ -26,6 +24,9 @@ public class Proyecto {
 		
 		this.fechaInicio = new Fecha(inicio);
 		this.fechaFinEstimada = new Fecha(fin);
+		if (this.fechaInicio.esPosteriorA(fechaFinEstimada)) {
+			throw new IllegalArgumentException ("La fecha de inicio no puede ser posterior a la fecha de fin");
+		}
 		
 		String nombreCliente = cliente[0];
 		String mailCliente = cliente [1];
@@ -43,8 +44,7 @@ public class Proyecto {
 		
 		this.historialEmpleados = new ArrayList<>();
 	}
-	
-	
+		
 	public void agregarTarea(String titulo, String descripcion, double duracion) {
 		if (this.finalizado) {
 			throw new IllegalArgumentException("No se puede agregar una tarea a un proyecto finalizado.");
@@ -54,7 +54,7 @@ public class Proyecto {
 		this.recalcularFechaFin();
 	}
 	
-	private void recalcularFechaFin() {
+	public void recalcularFechaFin() {
 		double duracion = 0;
 		for (Tarea t: this.tareas) {
 			duracion += t.getDuracion();
@@ -65,8 +65,8 @@ public class Proyecto {
 	public double calcularCostoTotal(List<Empleado> empleados) {
 		double subTotal = 0;
 		for (Tarea tarea: this.tareas) {
-			int legajoEmpleadoAsignado = tarea.getLegajoEmpleadoAsignado();
-			if (legajoEmpleadoAsignado != 0) { //Solo miro las tareas asignadas
+			Integer legajoEmpleadoAsignado = tarea.getLegajoEmpleadoAsignado();
+			if (legajoEmpleadoAsignado != null) { //Solo miro las tareas asignadas
 				for (Empleado empleadoResponsable: empleados) {
 					if (empleadoResponsable.getLegajo() == legajoEmpleadoAsignado)
 						subTotal += empleadoResponsable.calcularCostoTarea(tarea);
@@ -111,7 +111,7 @@ public class Proyecto {
 		return direccionVivienda;
 	}
 	
-	public boolean isFinalizado() {
+	public boolean estaFinalizado() {
 		return finalizado;
 	}
 	
@@ -119,13 +119,29 @@ public class Proyecto {
 		return fechaInicio;
 	}
 	
+	public Fecha getFechaFinEstimada() {
+		return fechaFinEstimada;
+	}
+	
+	public Fecha getFechaFinReal() {
+		return fechaFinReal;
+	}
+	
+	public Cliente getCliente() {
+		return cliente;
+	}
+	
+	public List<String> getHistorialEmpleados() {
+		return historialEmpleados;
+	}
+
 	public boolean huboRetraso() {
 		for(Tarea tarea: this.tareas) {
 			if(tarea.huboRetraso()) {
 				this.tieneRetraso = true;
-				return true;
+				return tieneRetraso;
 			}
 		}
-		return false;
+		return tieneRetraso;
 	}
 }

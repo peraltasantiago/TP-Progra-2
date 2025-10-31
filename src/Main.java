@@ -8,7 +8,7 @@ import gui.PanelManager;
 public class Main {
     public static void main(String[] args) {
         HomeSolution homeSolution=new HomeSolution();
-        String titulos[]={"Pintar","Instacion electrica","Trabajos jardineria","Instalar AA"};
+        String titulos[]={"Pintar","Instalacion electrica","Trabajos jardineria","Instalar AA"};
         String descripciones[]={"","","",""};
         double duracion[]={4,2,1,.5};
         String cliente[]={"Pedro Gomez","",""};

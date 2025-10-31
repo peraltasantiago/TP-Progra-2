@@ -19,4 +19,8 @@ public class EmpleadoDePlanta extends Empleado {
 		else
 			return diasTotales * valorDia;
 		}
+	
+	public String getCategoria() {
+		return categoria;
+	}
 	}

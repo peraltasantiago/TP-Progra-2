@@ -90,6 +90,9 @@ public class Tarea {
         return historialResponsables;
     }
 	
+	public String getDescripcion() {
+		return descripcion;
+	}
 	
 	@Override
     public String toString() { //"El toString de Tarea sólo debe devolver el título"

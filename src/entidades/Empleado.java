@@ -21,14 +21,14 @@ public abstract class Empleado {
 		this.cantidadRetrasos++;
 	}
 
-	public boolean isDisponible() {
-		return disponible;
-	}
-
 	public void setDisponible(boolean disponible) {
-		this.disponible = disponible;
-	}
+        this.disponible = disponible;
+    }
 
+    public boolean estaDisponible() {
+        return this.disponible;
+    }
+    
 	public String getNombre() {
 		return nombre;
 	}
