@@ -47,4 +47,9 @@ public abstract class Empleado {
 	
 	public abstract double calcularCostoTarea(Tarea tarea);
 	
+	@Override
+	public String toString() {
+	    return this.nombre;
+	    }
+	
 }

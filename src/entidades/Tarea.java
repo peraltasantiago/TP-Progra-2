@@ -95,8 +95,8 @@ public class Tarea {
 	}
 	
 	@Override
-    public String toString() { //"El toString de Tarea sólo debe devolver el título"
-        return this.titulo;
+    public String toString() { 
+        return this.getTitulo();
     }
 	
 }

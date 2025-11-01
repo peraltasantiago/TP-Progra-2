@@ -150,14 +150,102 @@ public class HomeSolution implements IHomeSolution {
 
 	@Override
 	public void reasignarEmpleadoEnProyecto(Integer numero, Integer legajo, String titulo) throws Exception {
-		// TODO Auto-generated method stub
+		Proyecto proyecto = this.proyectos.get(numero);//
+		
+		if(proyecto == null) {
+			throw new Exception("Proyecto no existente");
+		}
+		if(proyecto.estaFinalizado()) {
+			throw new Exception("El proyecto esta finalizado, no se puede reasignar empleado.");
+		}
+		
+		Tarea tar = proyecto.buscarTarea(titulo);
+		if(tar==null) {
+			throw new Exception("La tarea no existe en el proyecto");
+			
+		}
+		if(!tar.tieneEmpleadoAsignado()) {
+			throw new Exception("Esta tarea no tiene un empleado asignado");
+		}
+		
+		Empleado nuevoEmpleado = this.empleados.get(legajo);
+		if(nuevoEmpleado == null) {
+			throw new Exception("El empleado no existe");
+		}
+		if (!nuevoEmpleado.estaDisponible()) {
+			throw new Exception("El empleado no esta disponible.");
+		}
+		
+		Integer legajoViejo = tar.getLegajoEmpleadoAsignado();
+		
+		if(legajoViejo.equals(legajo)) {
+			throw new Exception("La tarea ya esta asignada a este empleado");
+		}
+		
+		//para liberar al empleado anterior
+		Empleado empleadoAnterior = this.empleados.get(legajoViejo);
+		if(empleadoAnterior != null) {
+			empleadoAnterior.setDisponible(true);
+		}
+		
+		//asignar eel nuevo empleado
+		tar.asignarEmpleado(nuevoEmpleado.getLegajo());
+		nuevoEmpleado.setDisponible(false);
 		
 	}
 
 	@Override
 	public void reasignarEmpleadoConMenosRetraso(Integer numero, String titulo) throws Exception {
-		// TODO Auto-generated method stub
 		
+		Proyecto proyecto = this.proyectos.get(numero);
+		if(proyecto == null) {
+			throw new Exception("El proyecto no existe");
+		}
+		
+		if (proyecto.estaFinalizado()) {
+			throw new Exception("No se puede reasignar en un proyecto ya finalizado");
+		}
+		
+		Tarea tar = proyecto.buscarTarea(titulo);
+		if(tar == null) {
+			throw new Exception("La tarea no existe en este proyecto");
+		}
+		if (!tar.tieneEmpleadoAsignado()) {
+			throw new Exception("La tarea no tiene un empleado asignado previamente");
+		}
+		
+		//hallar al nuevo empleado
+		Empleado nuevoEmpleado = null;
+		int menorRetraso = Integer.MAX_VALUE;
+		for (Empleado emp : this.empleados.values()) {
+			
+			if (emp.estaDisponible()) {//si el empleado esta disponible
+				if (emp.getCantidadRetrasos() < menorRetraso) {//y tiene menos retrasos que el minimo
+					menorRetraso = emp.getCantidadRetrasos(); // actualiza el mínimo
+					nuevoEmpleado = emp; // este seria el nuevo empleado
+				}
+			}
+			
+		}
+			if(nuevoEmpleado == null) {
+				throw new Exception("No hay empleados disponibles para reasignar");
+			}
+			
+			//reasignacion
+			Integer legajoAnterior = tar.getLegajoEmpleadoAsignado();
+			
+			if (legajoAnterior.equals(nuevoEmpleado.getLegajo())) {
+				throw new Exception("La tarea ya esta asignada al empleado con menos retrasos");
+			}
+			
+			Empleado empleadoAntiguo = this.empleados.get(legajoAnterior);
+			if (empleadoAntiguo != null) {
+				empleadoAntiguo.setDisponible(true);
+			}
+			
+			tar.asignarEmpleado(nuevoEmpleado.getLegajo());
+			nuevoEmpleado.setDisponible(false);
+	
 	}
 
 	@Override

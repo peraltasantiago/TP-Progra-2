@@ -109,7 +109,9 @@ public class GestionProyectos extends  JPanel{
                     );
                     if (resultado == JOptionPane.OK_OPTION) {
                         try{
-                        Integer legajo = Integer.parseInt(empleados.getSelectedItem().toString());
+                        //Integer legajo = Integer.parseInt(empleados.getSelectedItem().toString());
+                            entidades.Empleado empSeleccionado = (entidades.Empleado) empleados.getSelectedItem();
+                        	Integer legajo = empSeleccionado.getLegajo();
                         panelManager.sistema().reasignarEmpleadoEnProyecto(panelManager.consultarSeleccionado(), legajo, titulo);
                         }
                         catch (Exception exception ){
