@@ -15,14 +15,16 @@ public class Proyecto {
 	private Fecha fechaFinReal;
 	private boolean finalizado;
 	private boolean tieneRetraso;
-	private Map<String,Tarea> tareas;
+	private Map<String,Tarea> tareas; //La clave es el titulo de la tarea y el valor es el objeto Tarea.
 	private List<String> historialEmpleados;
+	private double costoActual;
 	
 	public Proyecto(String[] titulos, String[] descripcion, double[] dias, String domicilio, String[] cliente, String inicio, String fin) {
 		this.nroProyecto = ++contadorProyecto;
 		this.direccionVivienda = domicilio;
 		this.finalizado = false;
 		this.tieneRetraso = false;
+		this.costoActual = 0;
 		
 		this.fechaInicio = new Fecha(inicio);
 		this.fechaFinEstimada = new Fecha(fin);
@@ -64,37 +66,34 @@ public class Proyecto {
 		this.fechaFinEstimada = this.fechaInicio.agregarDias(duracion);
 	}
 	
-	public double calcularCostoTotal(List<Empleado> empleados) {
+	public void calcularCostoTotal(Map<Integer, Empleado> empleados) {
 		double subTotal = 0;
 		for (Tarea tarea: this.tareas.values()) {
 			Integer legajoEmpleadoAsignado = tarea.getLegajoEmpleadoAsignado();
 			if (legajoEmpleadoAsignado != null) { //Solo miro las tareas asignadas
-				for (Empleado empleadoResponsable: empleados) {
-					if (empleadoResponsable.getLegajo() == legajoEmpleadoAsignado)
-						subTotal += empleadoResponsable.calcularCostoTarea(tarea);
-				}
-			}	
-		}
-		double total = subTotal * 1.35;
-		
+				Empleado empleadoResponsable = empleados.get(legajoEmpleadoAsignado);
+					subTotal += empleadoResponsable.calcularCostoTarea(tarea);
+			}
+		}	
 		if (this.tieneRetraso) {
-			total *= 0.25;
+			this.costoActual = subTotal * 1.25;
 		}
-		return total;
+		else {
+			this.costoActual = subTotal * 1.35;
+		}
 	}
 	
 	public Tarea buscarTarea(String titulo) {
-		//for (Tarea tarea: this.tareas.values()) {
-			//if(tarea.toString().equals(titulo)) {
-				return this.tareas.get(titulo);
-			//}
-		//}	
+		return this.tareas.get(titulo);
 	}
 	
 	public void finalizarProyecto(String fechaFin) {
 		Fecha fechaDeFinalizacion = new Fecha(fechaFin);
 		if (fechaDeFinalizacion.esAnteriorA(this.fechaInicio)) {
 			throw new IllegalArgumentException("La fecha de finalizacion no puede ser anterior a la fecha de inicio");
+		}
+		if (fechaDeFinalizacion.esPosteriorA(this.fechaFinEstimada)) {
+			this.tieneRetraso = true;
 		}
 		this.finalizado = true;
 		this.fechaFinReal = fechaDeFinalizacion;
@@ -144,5 +143,13 @@ public class Proyecto {
 			}
 		}
 		return tieneRetraso;
+	}
+	
+	public double getCostoActual() {
+		return costoActual;
+	}
+	
+	public void setTieneRetraso(boolean tieneRetraso) {
+		this.tieneRetraso = tieneRetraso;
 	}
 }

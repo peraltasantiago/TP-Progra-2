@@ -8,8 +8,8 @@ import entidades.Tupla;
 
 public class HomeSolution implements IHomeSolution {
 	
-	private Map<Integer, Empleado> empleados; //La clave es el nro de legajo y el valor es el Empleado
-	private Map<Integer, Proyecto> proyectos; //La clave es el nro de proyecto y el valor es el Proyecto
+	private Map<Integer, Empleado> empleados; //La clave es el nro de legajo y el valor es el objeto Empleado
+	private Map<Integer, Proyecto> proyectos; //La clave es el nro de proyecto y el valor es el objeto Proyecto
 	
 	public HomeSolution() {
 		this.empleados = new HashMap<>();
@@ -57,6 +57,7 @@ public class HomeSolution implements IHomeSolution {
 			if (empleado.estaDisponible()) {
 				tarea.asignarEmpleado(empleado.getLegajo());
 				empleado.setDisponible(false);
+				proyecto.calcularCostoTotal(this.empleados);
 				return;
 			}
 		}
@@ -89,6 +90,7 @@ public class HomeSolution implements IHomeSolution {
 //		}
 		tarea.asignarEmpleado(posibleEmpleado.getLegajo());
 		posibleEmpleado.setDisponible(false);
+		proyecto.calcularCostoTotal(this.empleados);
 	}
 
 	@Override
@@ -107,6 +109,7 @@ public class HomeSolution implements IHomeSolution {
 			empleado.acumularRetrasos();
 		}
 		proyecto.recalcularFechaFin();
+		proyecto.calcularCostoTotal(this.empleados);
 	}
 
 	@Override
@@ -139,6 +142,9 @@ public class HomeSolution implements IHomeSolution {
 			if (fechaDeFinalizacion.esAnteriorA(proyecto.getFechaInicio())) {
 				throw new IllegalArgumentException("La fecha de finalizacion no puede ser anterior a la fecha de inicio");
 			}
+			if(fechaDeFinalizacion.esAnteriorA(proyecto.getFechaFinEstimada())) {
+				throw new IllegalArgumentException("La fecha de finalizacion no puede ser anterior a la fecha de finalizacion estimada.");
+			}
 			for (Tarea tarea: proyecto.getTareas()) {
 				if (tarea.tieneEmpleadoAsignado()) {
 					Empleado empleado = this.empleados.get(tarea.getLegajoEmpleadoAsignado());
@@ -146,6 +152,7 @@ public class HomeSolution implements IHomeSolution {
 				}
 			}
 			proyecto.finalizarProyecto(fin);
+			proyecto.calcularCostoTotal(this.empleados);
 	}
 
 	@Override
@@ -191,6 +198,7 @@ public class HomeSolution implements IHomeSolution {
 		//asignar eel nuevo empleado
 		tar.asignarEmpleado(nuevoEmpleado.getLegajo());
 		nuevoEmpleado.setDisponible(false);
+		proyecto.calcularCostoTotal(this.empleados);
 		
 	}
 
@@ -245,7 +253,7 @@ public class HomeSolution implements IHomeSolution {
 			
 			tar.asignarEmpleado(nuevoEmpleado.getLegajo());
 			nuevoEmpleado.setDisponible(false);
-	
+			proyecto.calcularCostoTotal(this.empleados);
 	}
 
 	@Override
@@ -254,7 +262,7 @@ public class HomeSolution implements IHomeSolution {
 		if (proyecto == null) {
 			return 0;
 		}
-		return proyecto.calcularCostoTotal(new ArrayList<>(this.empleados.values()));
+		return proyecto.getCostoActual();
 	}
 
 	@Override
@@ -388,6 +396,15 @@ public class HomeSolution implements IHomeSolution {
 	@Override
 	public String consultarProyecto(Integer numero) {
 		Proyecto proyecto = this.proyectos.get(numero);
-			return Integer.toString(proyecto.getNroProyecto());
+		if (proyecto == null) {
+			return "El proyecto no existe.";
+		}
+		StringBuilder informacion = new StringBuilder();
+		informacion.append("Nro de Proyecto: ").append(proyecto.getNroProyecto()).append("\n");
+		informacion.append("Cliente: ").append(proyecto.getCliente().getNombre()).append("\n");
+		informacion.append("Domicilio: ").append(proyecto.getDireccionVivienda()).append("\n");
+		informacion.append("Fecha de inicio: ").append(proyecto.getFechaInicio()).append("\n");
+		informacion.append("Fecha de fin estimada: ").append(proyecto.getFechaFinEstimada());
+		return informacion.toString();
 	}
 }

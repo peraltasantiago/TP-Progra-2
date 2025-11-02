@@ -49,7 +49,8 @@ public abstract class Empleado {
 	
 	@Override
 	public String toString() {
-	    return this.nombre;
+	    return String.valueOf(this.legajo);
 	    }
+	
 	
 }
