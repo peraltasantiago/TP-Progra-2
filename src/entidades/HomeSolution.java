@@ -150,7 +150,7 @@ public class HomeSolution implements IHomeSolution {
 
 	@Override
 	public void reasignarEmpleadoEnProyecto(Integer numero, Integer legajo, String titulo) throws Exception {
-		Proyecto proyecto = this.proyectos.get(numero);//
+		Proyecto proyecto = this.proyectos.get(numero);
 		
 		if(proyecto == null) {
 			throw new Exception("Proyecto no existente");

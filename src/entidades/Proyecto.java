@@ -2,6 +2,8 @@ package entidades;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Proyecto {
 	private int nroProyecto;
@@ -13,7 +15,7 @@ public class Proyecto {
 	private Fecha fechaFinReal;
 	private boolean finalizado;
 	private boolean tieneRetraso;
-	private List<Tarea> tareas;
+	private Map<String,Tarea> tareas;
 	private List<String> historialEmpleados;
 	
 	public Proyecto(String[] titulos, String[] descripcion, double[] dias, String domicilio, String[] cliente, String inicio, String fin) {
@@ -33,13 +35,13 @@ public class Proyecto {
 		String telCliente = cliente [2]; //Asumo que el cliente que se pasa por parametro es del estilo [nombre, email, telefono]
 		this.cliente = new Cliente(nombreCliente, mailCliente, telCliente);
 		
-		this.tareas = new ArrayList<>();
+		this.tareas = new HashMap<>();
 		for (int i = 0; i < titulos.length; i++) { //Itero por los diferentes arreglos con el mismo indice guardando en cada variable cada uno de los valores de las diferentes tareas. Con ellas creo una nueva tarea y la agrego a la lista.
 			String tituloActual = titulos[i];
 			String descripcionActual = descripcion[i];
 			double duracionActual = dias[i];
 			Tarea nuevaTarea = new Tarea(tituloActual, descripcionActual, duracionActual);
-			this.tareas.add(nuevaTarea);
+			this.tareas.put(tituloActual,nuevaTarea);
 		}
 		
 		this.historialEmpleados = new ArrayList<>();
@@ -50,13 +52,13 @@ public class Proyecto {
 			throw new IllegalArgumentException("No se puede agregar una tarea a un proyecto finalizado.");
 		}
 		Tarea nuevaTarea = new Tarea(titulo, descripcion, duracion);
-		this.tareas.add(nuevaTarea);
+		this.tareas.put(titulo,nuevaTarea);
 		this.recalcularFechaFin();
 	}
 	
 	public void recalcularFechaFin() {
 		double duracion = 0;
-		for (Tarea t: this.tareas) {
+		for (Tarea t: this.tareas.values()) {
 			duracion += t.getDuracion();
 		}
 		this.fechaFinEstimada = this.fechaInicio.agregarDias(duracion);
@@ -64,7 +66,7 @@ public class Proyecto {
 	
 	public double calcularCostoTotal(List<Empleado> empleados) {
 		double subTotal = 0;
-		for (Tarea tarea: this.tareas) {
+		for (Tarea tarea: this.tareas.values()) {
 			Integer legajoEmpleadoAsignado = tarea.getLegajoEmpleadoAsignado();
 			if (legajoEmpleadoAsignado != null) { //Solo miro las tareas asignadas
 				for (Empleado empleadoResponsable: empleados) {
@@ -82,12 +84,11 @@ public class Proyecto {
 	}
 	
 	public Tarea buscarTarea(String titulo) {
-		for (Tarea tarea: this.tareas) {
-			if(tarea.toString().equals(titulo)) {
-				return tarea;
-			}
-		}
-		return null;
+		//for (Tarea tarea: this.tareas.values()) {
+			//if(tarea.toString().equals(titulo)) {
+				return this.tareas.get(titulo);
+			//}
+		//}	
 	}
 	
 	public void finalizarProyecto(String fechaFin) {
@@ -104,7 +105,7 @@ public class Proyecto {
 	}
 	
 	public List<Tarea> getTareas() {
-		return tareas;
+		return new ArrayList<>(this.tareas.values());//devuelve una lista con los valores del map
 	}
 	
 	public String getDireccionVivienda() {
@@ -136,7 +137,7 @@ public class Proyecto {
 	}
 
 	public boolean huboRetraso() {
-		for(Tarea tarea: this.tareas) {
+		for(Tarea tarea: this.tareas.values()) {
 			if(tarea.huboRetraso()) {
 				this.tieneRetraso = true;
 				return tieneRetraso;
